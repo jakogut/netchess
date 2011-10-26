@@ -46,17 +46,17 @@ void board_init(board_t b)
 
 	for(i = 0; i < 8; i++)
 	{
-		 b[1][i].type = PIECE_PAWN;
-		 b[1][i].team = TEAM_WHITE;
-
-		 b[6][i].type = PIECE_PAWN;
-		 b[6][i].team = TEAM_BLACK;
+		for(j = 0; j < 2; j++)
+		{
+			b[j ? 6 : 1][i].type = PIECE_PAWN;
+			b[j ? 6 : 1][i].team = j;
+		}
 	}
 }
 
 void board_print(board_t b)
 {
-	printf("     A    B    C    D    E    F    G    H\n\n");
+	printf("\n     A    B    C    D    E    F    G    H\n\n");
 
 	int i;
 	for(i = 0; i < 8; i++)
