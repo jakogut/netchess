@@ -1,3 +1,6 @@
+#ifndef BOARD_H_
+#define BOARD_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,6 +12,11 @@
 #define PIECE_QUEEN	5
 #define PIECE_KING	6
 
+#define TEAM_WHITE 1
+#define TEAM_BLACK -1
+
+typedef char coordinate_t[2];
+
 typedef struct piece_s
 {
 	char team;
@@ -16,14 +24,12 @@ typedef struct piece_s
 
 } piece_t;
 
-typedef struct board_s
-{
-	piece_t places[8][8];
+typedef piece_t board_t[8][8];
 
-} board_t;
+void board_init();
 
+void board_print(board_t b);
 
-board_t* board_create();
-void board_destroy(board_t* b);
+void board_move(board_t b, char* src, char* dest);
 
-void board_print(board_t* b);
+#endif
