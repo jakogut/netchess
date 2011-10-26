@@ -11,7 +11,14 @@ void board_init(board_t b)
 {
 	memset(b, 0, sizeof(piece_t) * (8 * 8));
 
-	int i;
+	/* Initialize the team of each place to -1 so that we don't have empty spaces
+	parading around like they're part of the black team */
+
+	int i, j;
+	for(i = 0; i < 8; i++)
+		for(j = 0; j < 8; j++)
+			b[i][j].team = -1;
+
 	for(i = 0; i < 2; i++)
 	{
 		b[i * 7][0].type = PIECE_ROOK;
@@ -79,7 +86,7 @@ void board_print(board_t b)
 	}
 }
 
-void board_move(board_t b, char* src_cn, char* dest_cn)
+void board_move(board_t b, int team, char* src_cn, char* dest_cn)
 {
 	coordinate_t src_coord, dest_coord;
 
@@ -88,7 +95,7 @@ void board_move(board_t b, char* src_cn, char* dest_cn)
 
 	char piece_type = b[src_coord[0]][src_coord[1]].type;
 
-	if(is_valid_move(b, src_coord, dest_coord))
+	if(b[src_coord[0]][src_coord[1]].team == team && is_valid_move(b, src_coord, dest_coord))
 	{
 		b[dest_coord[0]][dest_coord[1]].type = b[src_coord[0]][src_coord[1]].type;
 		b[dest_coord[0]][dest_coord[1]].team = b[src_coord[0]][src_coord[1]].team;
@@ -107,6 +114,16 @@ void cn_to_coord(char* cn, coordinate_t coord)
 	coord[1] = 8 - (cn[1] - '0');
 }
 
+// Convert internal coordinates to chess notation
+void coord_to_cn(coordinate_t coord, char* cn)
+{
+	memset(cn, 0, 3);
+
+	cn[0] = coord[0] + 'A';
+	cn[1] = coord[1] + '0';
+}
+
+// Confirm that a given move is legal
 int is_valid_move(board_t b, coordinate_t src, coordinate_t dest)
 {
 	int i, j;
@@ -121,6 +138,7 @@ int is_valid_move(board_t b, coordinate_t src, coordinate_t dest)
 
 	char direction = (src_team == TEAM_WHITE) ? 1 : -1;
 
+	// This is no time for civil war
 	if(dest_team == src_team) return 0;
 
 	switch(src_type)
