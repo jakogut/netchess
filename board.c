@@ -5,14 +5,12 @@
 
 const char* piece_names[] = {NULL, "pawn", "rook", "knight", "bishop", "queen", "king"};
 
-void cn_to_coord(char* cn, coordinate_t coord);
-
 void board_init(board_t b)
 {
 	memset(b, 0, sizeof(piece_t) * (8 * 8));
 
 	/* Initialize the team of each place to -1 so that we don't have empty spaces
-	parading around like they're part of the black team */
+	parading around like they're part of the white team */
 
 	int i, j;
 	for(i = 0; i < 8; i++)
