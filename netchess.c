@@ -78,6 +78,8 @@ void chess_shell(board_t board)
 			break;
 		};
 	}
+
+	for(i = 0; i < MAX_TOKENS; i++) free(tokens[i]);
 }
 
 int main()
