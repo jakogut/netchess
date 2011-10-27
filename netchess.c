@@ -22,7 +22,23 @@ int victory_check(board_t b)
 
 void print_help()
 {
-	printf("Help text here.\n");
+	printf(	"NetChess follows standard chess rules."
+		"\nThe game starts with the white team making the first move."
+
+		"\n\nCOMMAND		EFFECT"
+		"\nq		Quit"
+
+		"\n\nhelp	\tPrint documentation"
+
+		"\n\nboard	\tPrint the game board"
+
+		"\n\nmove 	\tTakes two chess coordinates as arguments,"
+		"\n		and moves a piece if legal"
+
+		"\n\nturn	\tEnds the current player's turn, and"
+		"\n		finalizes their moves"
+
+		"\n\n" );
 }
 
 void chess_shell(board_t board)
