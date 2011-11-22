@@ -36,4 +36,10 @@ void cn_to_coord(char* cn, coordinate_t coord);
 
 void coord_to_cn(coordinate_t coord, char* cn);
 
+/* Convert a string to a different case
+
+        if case == 0, lower case
+        if case == 1, upper case	*/
+char* change_case(int new_case, char* str);
+
 #endif

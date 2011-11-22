@@ -70,7 +70,7 @@ void chess_shell(board_t board)
 		fgets(str, MAX_INPUT_LENGTH, stdin);
 		tokenize(str, (char**)tokens);
 
-		switch(cmd_to_idx(tokens[0]))
+		switch(cmd_to_idx(change_case(0, tokens[0])))
 		{
 			case -0x1:
 				printf("\n\"%s\" is not a valid command. Type \"help\" for instructions.\n", tokens[0]);
@@ -120,6 +120,7 @@ void tokenize(char* str, char** tokens)
 	}
 }
 
+// Convert a text command to a corresponding instruction index
 int cmd_to_idx(char* cmd)
 {
 	int i;

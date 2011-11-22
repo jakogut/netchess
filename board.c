@@ -108,6 +108,8 @@ void board_move(board_t b, int team, char* src_cn, char* dest_cn)
 // Convert chess notation to internal coordinates
 void cn_to_coord(char* cn, coordinate_t coord)
 {
+	change_case(1, cn);
+
 	coord[0] = (cn[0] - 'A');
 	coord[1] = 8 - (cn[1] - '0');
 }
@@ -176,3 +178,14 @@ int is_valid_move(board_t b, coordinate_t src, coordinate_t dest)
 
 	return 0;
 }
+
+char* change_case(int new_case, char* str)
+{
+	int i;
+	for(i = 0; i < strlen(str); i++)
+		if(str[i] >= (!new_case ? 'A' : 'a') && str[i] <= (!new_case ? 'Z' : 'z'))
+			str[i] += (!new_case ? ('a' - 'A') : ('A' - 'a'));
+
+	return str;
+}
+
