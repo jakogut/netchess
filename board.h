@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #define PIECE_EMPTY	0
 #define PIECE_PAWN	1
@@ -15,7 +16,7 @@
 #define TEAM_WHITE 0
 #define TEAM_BLACK 1
 
-typedef char coordinate_t[2];
+typedef uint8_t coordinate_t[2];
 
 typedef struct piece_s
 {

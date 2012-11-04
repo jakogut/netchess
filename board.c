@@ -84,6 +84,68 @@ void board_print(board_t b)
 	}
 }
 
+int valid_move(board_t b, coordinate_t src, coordinate_t dest)
+{
+	for(int i = 0; i < 2; i++)
+	{
+		if(src[i]  < 0 || src[i]  > 8) return 0;
+		if(dest[i] < 0 || dest[i] > 8) return 0;
+	}
+
+	uint8_t src_type  = b[ src[0]][ src[1]].type,
+		src_team = b[ src[0]][ src[1]].team;
+
+	uint8_t dest_type = b[dest[0]][dest[1]].type,
+		dest_team = b[dest[0]][dest[1]].team;
+
+	// White moves in a positive direction (right), black moves negative (left)
+	char direction = (src_team == TEAM_WHITE) ? 1 : -1;
+
+	// This is no time for civil war
+	if(dest_team == src_team) return 0;
+
+	switch(src_type)
+	{
+		case PIECE_ROOK:
+		break;
+
+		case PIECE_KNIGHT:
+			if(abs(dest[0] - src[0]) == 2 && abs(dest[1] - src[1]) == 1)
+				return 1;
+			if(abs(dest[0] - src[0]) == 1 && abs(dest[1] - src[1]) == 2)
+				return 1;
+		break;
+
+		case PIECE_BISHOP:
+		break;
+
+		case PIECE_QUEEN:
+		break;
+
+		case PIECE_KING:
+			if(abs(dest[0] - src[0]) == 1 && abs(dest[1] - src[1]) == 1)
+				return 1;
+		break;
+
+		case PIECE_PAWN:
+			// Moving a pawn one space forward into an empty space
+			if(dest_type == PIECE_EMPTY && dest[0] - src[0] == direction)
+				return 1;
+			// Moving a pawn two spaces forward from the starting position
+			if(dest_type == PIECE_EMPTY && src[0] == (src_team == TEAM_WHITE ? 1 : 6) && dest[1] == src[1] && dest[0] - src[0] == (2 * direction))
+				return 1;
+			// Capture a piece diagonally
+			if(dest_type != PIECE_EMPTY && (dest[0] - src[0]) == direction && (dest[1] == src[1] + 1 || dest[1] == src[1] - 1))
+				return 1;
+		break;
+
+		case PIECE_EMPTY: break;
+	};
+
+	return 0;
+}
+
+// Take the source and dest coordinates in chess notation, and move a piece if the move is legal
 void board_move(board_t b, int team, char* src_cn, char* dest_cn)
 {
 	coordinate_t src_coord, dest_coord;
@@ -91,9 +153,7 @@ void board_move(board_t b, int team, char* src_cn, char* dest_cn)
 	cn_to_coord(src_cn, src_coord);
 	cn_to_coord(dest_cn, dest_coord);
 
-	char piece_type = b[src_coord[0]][src_coord[1]].type;
-
-	if(b[src_coord[0]][src_coord[1]].team == team && is_valid_move(b, src_coord, dest_coord))
+	if(b[src_coord[0]][src_coord[1]].team == team && valid_move(b, src_coord, dest_coord))
 	{
 		b[dest_coord[0]][dest_coord[1]].type = b[src_coord[0]][src_coord[1]].type;
 		b[dest_coord[0]][dest_coord[1]].team = b[src_coord[0]][src_coord[1]].team;
@@ -121,62 +181,6 @@ void coord_to_cn(coordinate_t coord, char* cn)
 
 	cn[0] = coord[0] + 'A';
 	cn[1] = coord[1] + '0';
-}
-
-// Confirm that a given move is legal
-int is_valid_move(board_t b, coordinate_t src, coordinate_t dest)
-{
-	int i, j;
-	for(i = 0; i < 2; i++)
-	{
-		if(src[i]  < 0 || src[i]  > 8) return 0;
-		if(dest[i] < 0 || dest[i] > 8) return 0;
-	}
-
-	char src_type  = b[ src[0]][ src[1]].type,  src_team = b[ src[0]][ src[1]].team;
-	char dest_type = b[dest[0]][dest[1]].type, dest_team = b[dest[0]][dest[1]].team;
-
-	char direction = (src_team == TEAM_WHITE) ? 1 : -1;
-
-	// This is no time for civil war
-	if(dest_team == src_team) return 0;
-
-	switch(src_type)
-	{
-		case PIECE_ROOK:
-		break;
-
-		case PIECE_KNIGHT:
-			if(abs(dest[0] - src[0]) == 2 && abs(dest[1] - src[1]) == 1)
-				return 1;
-			if(abs(dest[0] - src[0]) == 1 && abs(dest[1] - src[1]) == 2)
-				return 1;
-		break;
-
-		case PIECE_BISHOP:
-		break;
-
-		case PIECE_QUEEN:
-		break;
-
-		case PIECE_KING:
-			if(dest_team != src_team && abs(dest[0] - src[0]) == 1 && abs(dest[1] - src[1]) == 1)
-				return 1;
-		break;
-
-		case PIECE_PAWN:
-			if(dest_type != 0 && dest_team != src_team && dest[0] - src[0] == direction && abs(dest[1] - src[1]) == 1)
-				return 1;
-			if(!dest_type && !b[dest[0]][dest[1]].type && src[0] == (src_team == TEAM_WHITE ? 1 : 6) && dest[1] == src[1] && dest[0] - src[0] == (2 * direction))
-				return 1;
-			if(!dest_type && dest[1] == src[1] && (dest[0] - src[0]) == direction)
-				return 1;
-		break;
-
-		case PIECE_EMPTY: break;
-	};
-
-	return 0;
 }
 
 char* change_case(int new_case, char* str)

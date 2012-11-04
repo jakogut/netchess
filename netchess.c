@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "board.h"
 
@@ -10,7 +11,7 @@
 
 const char* commands[] = {"q", "help", "board", "move", "turn", 0};
 
-const char* team_names[] = {"White", "Black"};
+const char* team_names[] = {"White(+)", "Black(-)"};
 
 static void tokenize(char* str, char** tokens);
 static int cmd_to_idx(char* cmd);
@@ -47,7 +48,7 @@ void chess_shell(board_t board)
 	char* tokens[MAX_TOKENS];
 	char  str[MAX_INPUT_LENGTH];
 
-	char team = 0, turn_change = 0;
+	uint8_t team = 0, turn_change = 0;
 
 	board_t temp_board;
 	memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
