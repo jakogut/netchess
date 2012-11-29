@@ -1,11 +1,11 @@
-#include "board.h"
+#include "netchess_engine.h"
 
 #include <math.h>
 #include <string.h>
 
 const char* piece_names[] = {NULL, "pawn", "rook", "knight", "bishop", "queen", "king"};
 
-void board_init(board_t b)
+void nce_init(board_t b)
 {
 	memset(b, 0, sizeof(piece_t) * (8 * 8));
 
@@ -54,7 +54,7 @@ void board_init(board_t b)
 	}
 }
 
-void board_print(board_t b)
+void nce_print(board_t b)
 {
 	printf("\n     A    B    C    D    E    F    G    H\n\n");
 
@@ -146,7 +146,7 @@ int valid_move(board_t b, coordinate_t src, coordinate_t dest)
 }
 
 // Take the source and dest coordinates in chess notation, and move a piece if the move is legal
-void board_move(board_t b, int team, char* src_cn, char* dest_cn)
+void nce_move(board_t b, int team, char* src_cn, char* dest_cn)
 {
 	coordinate_t src_coord, dest_coord;
 

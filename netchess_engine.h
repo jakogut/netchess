@@ -1,5 +1,5 @@
-#ifndef BOARD_H_
-#define BOARD_H_
+#ifndef NETCHESS_ENGINE_H_
+#define NETCHESS_ENGINE_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,11 +27,11 @@ typedef struct piece_s
 
 typedef piece_t board_t[8][8];
 
-void board_init();
+void nce_init();
 
-void board_print(board_t b);
+void nce_print(board_t b);
 
-void board_move(board_t b, int team, char* src, char* dest);
+void nce_move(board_t b, int team, char* src, char* dest);
 
 void cn_to_coord(char* cn, coordinate_t coord);
 
