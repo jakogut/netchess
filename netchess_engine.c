@@ -9,8 +9,8 @@ void nce_init(board_t b)
 {
 	memset(b, 0, sizeof(piece_t) * (8 * 8));
 
-	/* Initialize the team of each place to -1 so that we don't have empty spaces
-	parading around like they're part of the white team */
+	/* Initialize the team of each place to -1 so that we don't have empty spaces   *
+	 * parading around like they're part of the white team 				*/
 
 	int i, j;
 	for(i = 0; i < 8; i++)
@@ -89,7 +89,7 @@ void nce_print(board_t b)
  * Returns '-1' if no path exists,									*
  *	    '0' if path is not clear 									*
  *	    '1' is path is clear horizontally/vertically,						*
- *	    '2' is path is clear diagonally,						*/
+ *	    '2' is path is clear diagonally,								*/
 int clear_path(board_t b, coordinate_t src, coordinate_t dest)
 {
 	// X plane

@@ -1,6 +1,6 @@
 #include "netchess_interface.h"
 
-const char* commands[] = {"q", "help", "board", "move", "turn", 0};
+const char* commands[] = {"q", "help", "board", "move", "undo", "turn", 0};
 
 const char* team_names[] = {"White(+)", "Black(-)"};
 
@@ -9,18 +9,20 @@ void nci_help()
         printf( "NetChess follows standard chess rules."
                 "\nThe game starts with the white team making the first move."
 
-                "\n\nCOMMAND            EFFECT"
-                "\nq            Quit"
+                "\n\nCOMMAND		EFFECT"
+                "\nq		Quit"
 
                 "\n\nhelp       \tPrint documentation"
 
                 "\n\nboard      \tPrint the game board"
 
                 "\n\nmove       \tTakes two chess coordinates as arguments,"
-                "\n             and moves a piece if legal"
+                "\n             \tand sets a piece to be moved at the end of the turn."
+
+		"\n\nundo	\tUndo any pending move"
 
                 "\n\nturn       \tEnds the current player's turn, and"
-                "\n             finalizes their moves"
+                "\n             \tfinalizes their moves"
 
                 "\n\n" );
 }
@@ -72,7 +74,11 @@ void nci_shell(board_t board)
 				memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
 				nce_move(temp_board, team, tokens[1], tokens[2]);
 			break;
-/* Turn */		case  0x4:
+/* Undo */		case  0x4:
+				memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
+				printf("Pending moves undone.\n");
+			break;
+/* Turn */		case  0x5:
 				memcpy(board, temp_board, sizeof(piece_t) * (8 * 8));
 				team ^= 1, turn_change = 1;
 			break;
