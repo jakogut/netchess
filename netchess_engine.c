@@ -84,6 +84,46 @@ void nce_print(board_t b)
 	}
 }
 
+/* Check to see if pieces are on the same plane horizontally, vertically, or diagonally. 		*
+ * If they are, check the path between the two pieces to see if it's obstructed by another piece. 	*
+ * Returns '-1' if no path exists,									*
+ *	    '0' if path is not clear 									*
+ *	    '1' is path is clear horizontally/vertically,						*
+ *	    '2' is path is clear diagonally,						*/
+int clear_path(board_t b, coordinate_t src, coordinate_t dest)
+{
+	// X plane
+	if(src[1] == dest[1] && src[0] != dest[0])
+	{
+		int it = (dest[0] - src[0] < 0) ? -1 : 1;
+		for(int i = src[0] + it; i != dest[0]; i += it)
+			if(b[i][src[1]].type != PIECE_EMPTY) return 0;
+
+		return 1;
+	}
+	// Y plane
+	if(src[0] == dest[0] && src[1] != dest[1])
+	{
+		int it = (dest[1] - src[1] < 0) ? -1 : 1;
+		for(int i = src[1] + it; i != dest[1]; i += it)
+			if(b[src[0]][i].type != PIECE_EMPTY) return 0;
+
+		return 1;
+	}
+	// +X +Y / -X -Y diag
+	if((dest[0] - src[0]) == (dest[1] - src[1]))
+	{
+		return 2;
+	}
+	// +X -Y / -X +Y diag
+	if((dest[0] + src[0]) == (dest[1] + src[1]))
+	{
+		return 2;
+	}
+
+	return -1;
+}
+
 int valid_move(board_t b, coordinate_t src, coordinate_t dest)
 {
 	for(int i = 0; i < 2; i++)
@@ -92,7 +132,7 @@ int valid_move(board_t b, coordinate_t src, coordinate_t dest)
 		if(dest[i] < 0 || dest[i] > 8) return 0;
 	}
 
-	uint8_t src_type  = b[ src[0]][ src[1]].type,
+	uint8_t src_type = b[ src[0]][ src[1]].type,
 		src_team = b[ src[0]][ src[1]].team;
 
 	uint8_t dest_type = b[dest[0]][dest[1]].type,
@@ -107,6 +147,8 @@ int valid_move(board_t b, coordinate_t src, coordinate_t dest)
 	switch(src_type)
 	{
 		case PIECE_ROOK:
+			if(clear_path(b, src, dest) == 1)
+				return 1;
 		break;
 
 		case PIECE_KNIGHT:
@@ -129,7 +171,7 @@ int valid_move(board_t b, coordinate_t src, coordinate_t dest)
 
 		case PIECE_PAWN:
 			// Moving a pawn one space forward into an empty space
-			if(dest_type == PIECE_EMPTY && dest[0] - src[0] == direction)
+			if(dest_type == PIECE_EMPTY && dest[1] == src[1] && dest[0] - src[0] == direction)
 				return 1;
 			// Moving a pawn two spaces forward from the starting position
 			if(dest_type == PIECE_EMPTY && src[0] == (src_team == TEAM_WHITE ? 1 : 6) && dest[1] == src[1] && dest[0] - src[0] == (2 * direction))

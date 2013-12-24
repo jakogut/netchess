@@ -56,30 +56,30 @@ void nci_shell(board_t board)
 
                 switch(cmd_to_idx(change_case(0, tokens[0])))
                 {
-                        case -0x1:
-                                printf("\n\"%s\" is not a valid command. Type \"help\" for instructions.\n", tokens[0]);
+/* Invalid Command */	case -0x1:
+				printf("\n\"%s\" is not a valid command. Type \"help\" for instructions.\n", tokens[0]);
                         break;
-                        case  0x0:
-                                run = 0;
+/* Quit */		case  0x0:
+				run = 0;
                         break;
-                        case  0x1:
-                                nci_help();
+/* Help */		case  0x1:
+				nci_help();
                         break;
-                        case  0x2:
-                                nce_print(temp_board);
-                        break;
-                        case  0x3:
-                                memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
-                                nce_move(temp_board, team, tokens[1], tokens[2]);
-                        break;
-                        case  0x4:
-                                memcpy(board, temp_board, sizeof(piece_t) * (8 * 8));
-                                team ^= 1, turn_change = 1;
-                        break;
-                };
-        }
+/* Print Board */	case  0x2:
+				nce_print(temp_board);
+			break;
+/*  Move */		case  0x3:
+				memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
+				nce_move(temp_board, team, tokens[1], tokens[2]);
+			break;
+/* Turn */		case  0x4:
+				memcpy(board, temp_board, sizeof(piece_t) * (8 * 8));
+				team ^= 1, turn_change = 1;
+			break;
+		};
+	}
 
-        for(i = 0; i < MAX_TOKENS; i++) free(tokens[i]);
+	for(i = 0; i < MAX_TOKENS; i++) free(tokens[i]);
 }
 
 void tokenize(char* str, char** tokens)
