@@ -84,44 +84,16 @@ void nce_print(board_t b)
 	}
 }
 
-/* Check to see if pieces are on the same plane horizontally, vertically, or diagonally. 		*
- * If they are, check the path between the two pieces to see if it's obstructed by another piece. 	*
- * Returns '-1' if no path exists,									*
- *	    '0' if path is not clear 									*
- *	    '1' is path is clear horizontally/vertically,						*
- *	    '2' is path is clear diagonally,								*/
-int clear_path(board_t b, coordinate_t src, coordinate_t dest)
+
+/* Evaluate the status of the game, and determine whether a player is in check or checkmate 		*
+ * Returns '0' if neither player is in check nor checkmate						*
+ *	   '1' if white player is in check								*
+ *	   '2' if white player is in checkmate								*
+ *	   '3' if black player is in check								*
+ *	   '4' if black player is in checkmate								*/
+int nci_evaluate()
 {
-	// X plane
-	if(src[1] == dest[1] && src[0] != dest[0])
-	{
-		int it = (dest[0] - src[0] < 0) ? -1 : 1;
-		for(int i = src[0] + it; i != dest[0]; i += it)
-			if(b[i][src[1]].type != PIECE_EMPTY) return 0;
-
-		return 1;
-	}
-	// Y plane
-	if(src[0] == dest[0] && src[1] != dest[1])
-	{
-		int it = (dest[1] - src[1] < 0) ? -1 : 1;
-		for(int i = src[1] + it; i != dest[1]; i += it)
-			if(b[src[0]][i].type != PIECE_EMPTY) return 0;
-
-		return 1;
-	}
-	// +X +Y / -X -Y diag
-	if((dest[0] - src[0]) == (dest[1] - src[1]))
-	{
-		return 2;
-	}
-	// +X -Y / -X +Y diag
-	if((dest[0] + src[0]) == (dest[1] + src[1]))
-	{
-		return 2;
-	}
-
-	return -1;
+	return 0;
 }
 
 int valid_move(board_t b, coordinate_t src, coordinate_t dest)
@@ -147,26 +119,24 @@ int valid_move(board_t b, coordinate_t src, coordinate_t dest)
 	switch(src_type)
 	{
 		case PIECE_ROOK:
-			if(clear_path(b, src, dest) == 1)
-				return 1;
+			if(clear_path(b, src, dest) == 1) return 1;
 		break;
 
 		case PIECE_KNIGHT:
-			if(abs(dest[0] - src[0]) == 2 && abs(dest[1] - src[1]) == 1)
-				return 1;
-			if(abs(dest[0] - src[0]) == 1 && abs(dest[1] - src[1]) == 2)
-				return 1;
+			if(abs(dest[0] - src[0]) == 2 && abs(dest[1] - src[1]) == 1) return 1;
+			if(abs(dest[0] - src[0]) == 1 && abs(dest[1] - src[1]) == 2) return 1;
 		break;
 
 		case PIECE_BISHOP:
+			if(clear_path(b, src, dest) == 2) return 1;
 		break;
 
 		case PIECE_QUEEN:
+			if(clear_path(b, src, dest) != -1) return 1;
 		break;
 
 		case PIECE_KING:
-			if(abs(dest[0] - src[0]) == 1 && abs(dest[1] - src[1]) == 1)
-				return 1;
+			if(clear_path(b, src, dest) != -1 && abs(dest[0] - src[0]) <= 1 && abs(dest[1] - src[1]) <= 1) return 1;
 		break;
 
 		case PIECE_PAWN:
@@ -205,6 +175,49 @@ void nce_move(board_t b, int team, char* src_cn, char* dest_cn)
 	}
 	else
 		printf("Invalid move.\n");
+}
+
+/* Check to see if pieces are on the same plane horizontally, vertically, or diagonally. 		*
+ * If they are, check the path between the two pieces to see if it's obstructed by another piece. 	*
+ * Returns '-1' if no path exists,									*
+ *	    '0' if path is not clear 									*
+ *	    '1' is path is clear horizontally/vertically,						*
+ *	    '2' is path is clear diagonally,								*/
+int clear_path(board_t b, coordinate_t src, coordinate_t dest)
+{
+	// X plane
+	if(src[1] == dest[1] && src[0] != dest[0])
+	{
+		int it = (dest[0] - src[0] < 0) ? -1 : 1;
+		for(int i = src[0] + it; i != dest[0]; i += it)
+			if(b[i][src[1]].type != PIECE_EMPTY) return 0;
+
+		return 1;
+	}
+	// Y plane
+	if(src[0] == dest[0] && src[1] != dest[1])
+	{
+		int it = (dest[1] - src[1] < 0) ? -1 : 1;
+		for(int i = src[1] + it; i != dest[1]; i += it)
+			if(b[src[0]][i].type != PIECE_EMPTY) return 0;
+
+		return 1;
+	}
+	// Diagonal plane
+	if(abs(dest[0] - src[0]) == abs(dest[1] - src[1]))
+	{
+		coordinate_t it = {0, 0};
+		it[0] = ((dest[0] - src[0]) < 0) ? -1 : 1;
+		it[1] = ((dest[1] - src[1]) < 0) ? -1 : 1;
+
+		coordinate_t i = {0, 0};
+		for(i[0] = src[0] + it[0]; i[0] != dest[0]; i[0] += it[0])
+			for(i[1] = src[1] + it[1]; i[1] != dest[1]; i[1] += it[1])
+				if(b[i[0]][i[1]].type != PIECE_EMPTY) return 0;
+		return 2;
+	}
+
+	return -1;
 }
 
 // Convert chess notation to internal coordinates
