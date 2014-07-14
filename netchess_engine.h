@@ -33,6 +33,8 @@ void nce_print(board_t b);
 
 void nce_move(board_t b, int team, char* src, char* dest);
 
+int nce_check(board_t b, int team);
+int nce_mate(board_t b, int team);
 int nce_evaluate(board_t b);
 
 int clear_path(board_t b, coordinate_t src, coordinate_t dest);

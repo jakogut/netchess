@@ -84,6 +84,61 @@ void nce_print(board_t b)
 	}
 }
 
+int nce_check(board_t b, int team)
+{
+	// Find the king
+	coordinate_t king_coord;
+	for(int x = 0; x < 8; x++)
+		for(int y = 0; y < 8; y++)
+			if(b[x][y].team == team && b[x][y].type == PIECE_KING)
+				king_coord[0] = x, king_coord[1] = y;
+
+	printf("%s king found at (%i, %i)\n", team == 0 ? "White" : "Black", king_coord[0], king_coord[1]);
+
+	for(int i = 0; i < 8; i++)
+	{
+		coordinate_t direction = {0, 0};
+
+		switch(i)
+		{
+			case 0: direction[0] =  0, direction[1] =  1;	break;
+			case 1: direction[0] =  1, direction[1] =  1;	break;
+			case 2: direction[0] =  1, direction[1] =  0;	break;
+			case 3: direction[0] =  1, direction[1] = -1;	break;
+			case 4: direction[0] =  0, direction[1] = -1;	break;
+			case 5: direction[0] = -1, direction[1] = -1;	break;
+			case 6: direction[0] = -1, direction[1] =  0;	break;
+			case 7: direction[0] = -1, direction[1] =  1;	break;
+		};
+
+		coordinate_t it = {king_coord[0], king_coord[1]};
+		while(it[0] < 8 && it[1] < 8)
+		{
+			piece_t* p = &b[it[0]][it[1]];
+
+			// If the piece belongs to the enemy, check to see if that piece can attack the king
+			if(p->team == ((team ^ 1) == 0))
+			{
+				switch(i % 1)
+				{
+					case 0: if(p->type == PIECE_ROOK || p->type == PIECE_QUEEN) return 1; break; // Horizontal
+					case 1: if(p->type == PIECE_BISHOP) return 1; break; // Diagonal
+				}
+
+				break;
+			}
+
+			it[0] += direction[0], it[1] += direction[1];
+		}
+	}
+
+	return 0;
+}
+
+int nce_mate(board_t b, int team)
+{
+	return 0;
+}
 
 /* Evaluate the status of the game, and determine whether a player is in check or checkmate 		*
  * Returns '0' if neither player is in check nor checkmate						*
@@ -91,8 +146,20 @@ void nce_print(board_t b)
  *	   '2' if white player is in checkmate								*
  *	   '3' if black player is in check								*
  *	   '4' if black player is in checkmate								*/
-int nci_evaluate()
+int nce_evaluate(board_t b)
 {
+	printf("Beginning evaluation.\n");
+
+	for(int team = TEAM_WHITE; team <= TEAM_BLACK; team++)
+	{
+		if(nce_check(b, team))
+		{
+			printf("Player is in check!\n");
+			if(nce_mate(b, team)) return ((team = 0 ? 0 : 2) + 2);
+			return ((team == 0 ? 0 : 2) + 1);
+		}
+	}
+
 	return 0;
 }
 
@@ -154,6 +221,7 @@ int valid_move(board_t b, coordinate_t src, coordinate_t dest)
 		case PIECE_EMPTY: break;
 	};
 
+	printf("DEBUG: Move does not meet criteria for piece selected\n");
 	return 0;
 }
 

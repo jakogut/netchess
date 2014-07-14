@@ -29,7 +29,7 @@ void nci_help()
 
 void nci_shell(board_t board)
 {
-        int i, run = 1;
+        int run = 1;
         char* tokens[MAX_TOKENS];
         char  str[MAX_INPUT_LENGTH];
 
@@ -38,7 +38,7 @@ void nci_shell(board_t board)
         board_t temp_board;
         memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
 
-        for(i = 0; i < MAX_TOKENS; i++) tokens[i] = malloc(TOKEN_LENGTH + 1);
+        for(int i = 0; i < MAX_TOKENS; i++) tokens[i] = malloc(TOKEN_LENGTH + 1);
 
         printf("Game starts with the %s team.\n", team_names[team]);
 
@@ -46,12 +46,14 @@ void nci_shell(board_t board)
         {
                 if(turn_change)
                 {
-                        printf("%s team moves\n: ", team_names[team]);
                         turn_change = 0;
+
+			if(nce_check(board, team)) printf("*-- You are in check. --*\n");
+                        printf("%s team moves\n: ", team_names[team]);
                 }
                          else printf(": ");
 
-                for(i = 0; i < MAX_TOKENS; i++) memset(tokens[i], 0, TOKEN_LENGTH);
+                for(int i = 0; i < MAX_TOKENS; i++) memset(tokens[i], 0, TOKEN_LENGTH);
 
                 fgets(str, MAX_INPUT_LENGTH, stdin);
                 tokenize(str, (char**)tokens);
@@ -79,13 +81,30 @@ void nci_shell(board_t board)
 				printf("Pending moves undone.\n");
 			break;
 /* Turn */		case  0x5:
-				memcpy(board, temp_board, sizeof(piece_t) * (8 * 8));
-				team ^= 1, turn_change = 1;
+				switch(nce_evaluate(temp_board))
+				{
+					case 0:
+						memcpy(board, temp_board, sizeof(piece_t) * (8 * 8));
+						team ^= 1, turn_change = 1;
+					break;
+	/* White Check */		case 1:
+						if(team == TEAM_WHITE) printf("You may not end your turn in check.\n");
+						memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
+					break;
+	/* White Mate */		case 2:
+					break;
+	/* Black Check */		case 3:
+						if(team == TEAM_BLACK) printf("You may not end your turn in check.\n");
+						memcpy(temp_board, board, sizeof(piece_t) * (8 * 8));
+					break;
+	/* Black Mate */		case 4:
+					break;
+				};
 			break;
 		};
 	}
 
-	for(i = 0; i < MAX_TOKENS; i++) free(tokens[i]);
+	for(int i = 0; i < MAX_TOKENS; i++) free(tokens[i]);
 }
 
 void tokenize(char* str, char** tokens)
